@@ -1,26 +1,39 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-// UNCOMMENT THE DATABASE YOU'D LIKE TO USE
-// var items = require('../database-mysql');
-// var items = require('../database-mongo');
+const cors = require('cors');
+
+var pets = require('../database-postgres/index.js');
+// var routes = require('./routes.js');
+
 
 var app = express();
-
-// UNCOMMENT FOR REACT
 app.use(express.static(__dirname + '/../react-client/dist'));
 
-// UNCOMMENT FOR ANGULAR
-// app.use(express.static(__dirname + '/../angular-client'));
-// app.use(express.static(__dirname + '/../node_modules'));
+// app.use('/api', cors(), routes);
+app.get('/api/dogs', cors(), async (req, res) => {
+  var result = await pets.getStarting();
+  res.send(result.rows[0]);
+});
 
-app.get('/items', function (req, res) {
-  items.selectAll(function(err, data) {
-    if(err) {
-      res.sendStatus(500);
-    } else {
-      res.json(data);
-    }
-  });
+app.get('/api/dogs/:id', cors(), async (req, res) => {
+  var { id } = req.params;
+  var result = await pets.getNext(id);
+  res.send(result.rows[0]);
+});
+
+app.put('/api/dogs/:id', async (req, res) => {
+  var { id } = req.params;
+  var data = req.body;
+  var result = await Products.updateRatings(id, data);
+  if (result === 0) {
+    res.status(204).end();
+  } else {
+    res.status(200).end();
+  }
+});
+
+app.post('/api/dogs', async (req, res) => {
+
 });
 
 app.listen(3000, function() {

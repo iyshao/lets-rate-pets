@@ -1,20 +1,29 @@
-var mysql = require('mysql');
+var { Client } = require('pg');
+var { database } = require('../config.js');
+var client = new Client(database);
+client.connect();
 
-var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'root',
-  password : 'FILL_ME_IN',
-  database : 'test'
-});
-
-var selectAll = function(callback) {
-  connection.query('SELECT * FROM items', function(err, results, fields) {
-    if(err) {
-      callback(err, null);
-    } else {
-      callback(null, results);
-    }
-  });
+var getStarting = async () => {
+  var res = await client.query('SELECT * FROM dogs WHERE id = (select MAX(id) from dogs);');
+  return res;
 };
 
-module.exports.selectAll = selectAll;
+var getNext = async (id) => {
+  var res = await client.query(`SELECT * FROM dogs WHERE id = (select MAX(id) from dogs where id<${id});`);
+  return res;
+};
+
+// var getPrevious = async (id) => {
+//   var res = await client.query(`SELECT * FROM dogs WHERE id > ${id} LIMIT 1;`);
+//   return res;
+// };
+
+var updateRatings = async (id, data) => {
+
+};
+
+module.exports = {
+  getStarting,
+  getNext,
+  updateRatings
+}
