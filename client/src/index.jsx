@@ -15,58 +15,61 @@ class App extends React.Component {
       id: 5,
       image: 'https://s3-us-west-1.amazonaws.com/mvp-pets/Pippy.JPG',
       description: 'Meet Pippy. Chief Happiness Officer at Khan Academy. Likes to make everyone smile when they come by his desk.',
-      ratings: 13
+      ratings: 13,
+      newRating: 0,
+      showRating: false
     }
 
-    this.handleNext = this.handleNext.bind(this);
+    this.updateData = this.updateData.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
+    this.handleNext = this.handleNext.bind(this);
     this.handleOpenMenu = this.handleOpenMenu.bind(this);
     this.handleCloseMenu = this.handleCloseMenu.bind(this);
     this.handleDogs = this.handleDogs.bind(this);
     this.handleCats = this.handleCats.bind(this);
     this.handleOthers = this.handleOthers.bind(this);
     this.handlePostPet = this.handlePostPet.bind(this);
+    this.handleRating = this.handleRating.bind(this);
+    this.handleRate = this.handleRate.bind(this);
+  }
+
+  updateData(data) {
+    if (data.ratings.length) {
+      var reducer = (accumulator, currentValue) => accumulator + currentValue;
+      var ratingTotal = data.ratings.reduce(reducer);
+      var rating = Math.round(ratingTotal / data.ratings.length);
+    } else {
+      rating = 'none';
+    }
+
+    this.setState({
+      id: data.id,
+      image: data.image,
+      description: data.description,
+      ratings: rating,
+      newRating: 0,
+      showRating: false
+    });
   }
 
   componentDidMount() {
     fetch(`http://localhost:3000/api/${this.state.type}`)
       .then(response => response.json())
       .then(data => {
-        var reducer = (accumulator, currentValue) => accumulator + currentValue;
-        var ratingTotal = data.ratings.reduce(reducer);
-        var rating = Math.round(ratingTotal / data.ratings.length);
-
-        this.setState({
-          id: data.id,
-          image: data.image,
-          description: data.description,
-          ratings: rating
-        })
+        this.updateData(data);
       });
   }
 
   handleNext() {
-    if (this.state.id === 1) {
-      this.componentDidMount();
-    } else {
-      fetch(`http://localhost:3000/api/${this.state.type}/${this.state.id}`)
-        .then(response => response.json())
-        .then(data => {
-          var reducer = (accumulator, currentValue) => accumulator + currentValue;
-          var ratingTotal = data.ratings.reduce(reducer);
-          var rating = Math.round(ratingTotal / data.ratings.length);
-  
-          this.setState({
-            id: data.id,
-            image: data.image,
-            description: data.description,
-            ratings: rating
-          })
-        })
-        .catch(() => {
-          alert('There are no pets posted yet. Why don\'t you post one of your own?');
-        })
-    }
+    fetch(`http://localhost:3000/api/${this.state.type}/${this.state.id}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data) {
+          this.updateData(data);
+        } else {
+          this.componentDidMount();
+        }
+      });
   }
 
   handleOpenMenu(event) {
@@ -95,7 +98,7 @@ class App extends React.Component {
       type: 'cats',
       id: 1,
       image: 'https://s3-us-west-1.amazonaws.com/mvp-pets/cat.jpg',
-      description: 'Ew. It\'s a cat. If you insist on looking at more cats, go ahead  I guess...',
+      description: 'Ew. It\'s a cat. If you insist on looking at more cats, go ahead I guess...',
       ratings: null
     })
     this.handleCloseMenu();
@@ -118,12 +121,42 @@ class App extends React.Component {
     this.handleCloseMenu();
   }
 
+  handleRating(event) {
+    this.setState({newRating: event.target.value});
+  }
+
+  handleRate() {
+    if (this.state.type === 'dogs' && (this.state.newRating > 15 || this.state.newRating < 11)) {
+      alert('Dogs must be rated above 10 and under 15');
+    } else if (this.state.type === 'cats' && this.state.newRating >= 0) {
+      alert('Cats can only receive negative ratings. Because they\'re cats...');
+    } else if (this.state.type === 'others' && (this.state.newRating > 10 || this.state.newRating < 0)) {
+      alert('Pets must be rated between 0 and 10');
+    } else {
+      fetch(`http://localhost:3000/api/pets/${this.state.id}`, {
+        method: 'PUT',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({newRating: this.state.newRating})
+      })
+        .then(res => res.json())
+        .then((data) => {
+          if (data) {
+            this.updateData(data);
+            this.setState({showRating: true});
+          }
+        })
+    }
+  }
+
+
   render () {
     return (<div>
       <SimpleMenu renderDogs={this.handleDogs} renderCats={this.handleCats} renderOthers={this.handleOthers} postPet={this.handlePostPet} anchorEl={this.state} openMenu={this.handleOpenMenu} closeMenu={this.handleCloseMenu}/>
       <h1>Let's Rate Pets!</h1>
       {this.state.posting && <PostPet />}
-      {!this.state.posting && <RenderPet image={this.state.image} description={this.state.description} ratings={this.state.ratings} handleNext={this.handleNext}/>}
+      {!this.state.posting && <RenderPet image={this.state.image} description={this.state.description} ratings={this.state.ratings} newRating={this.state.newRating} showRating={this.state.showRating} handleNext={this.handleNext} handleRating={this.handleRating} handleRate={this.handleRate}/>}
     </div>)
   }
 }
