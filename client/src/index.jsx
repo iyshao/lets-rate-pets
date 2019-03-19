@@ -17,7 +17,9 @@ class App extends React.Component {
       description: 'Meet Pippy. Chief Happiness Officer at Khan Academy. Likes to make everyone smile when they come by his desk.',
       ratings: 13,
       newRating: 0,
-      showRating: false
+      showRating: false,
+      alert: false,
+      alertMsg: ''
     }
 
     this.updateData = this.updateData.bind(this);
@@ -30,6 +32,7 @@ class App extends React.Component {
     this.handleOthers = this.handleOthers.bind(this);
     this.handlePostPet = this.handlePostPet.bind(this);
     this.handleRating = this.handleRating.bind(this);
+    this.handlerEnterKey = this.handlerEnterKey.bind(this);
     this.handleRate = this.handleRate.bind(this);
   }
 
@@ -48,7 +51,8 @@ class App extends React.Component {
       description: data.description,
       ratings: rating,
       newRating: 0,
-      showRating: false
+      showRating: false,
+      alert: false
     });
   }
 
@@ -87,7 +91,8 @@ class App extends React.Component {
       id: 1,
       image: 'https://s3-us-west-1.amazonaws.com/mvp-pets/Pippy.JPG',
       description: 'Awwww. Click \'Next\' to rate cute doggos!',
-      ratings: null
+      ratings: null,
+      alert: false
     })
     this.handleCloseMenu();
   }
@@ -99,7 +104,8 @@ class App extends React.Component {
       id: 1,
       image: 'https://s3-us-west-1.amazonaws.com/mvp-pets/cat.jpg',
       description: 'Ew. It\'s a cat. If you insist on looking at more cats, go ahead I guess...',
-      ratings: null
+      ratings: null,
+      alert: false
     })
     this.handleCloseMenu();
   }
@@ -111,7 +117,8 @@ class App extends React.Component {
       id: 1,
       image: 'https://s3-us-west-1.amazonaws.com/mvp-pets/hedgehog.jpg',
       description: 'Click \'Next\' to rate all kinds of pets!',
-      ratings: null
+      ratings: null,
+      alert: false
     })
     this.handleCloseMenu();
   }
@@ -125,28 +132,38 @@ class App extends React.Component {
     this.setState({newRating: event.target.value});
   }
 
+  handlerEnterKey(event) {
+    if (event.key === 'Enter') {
+      this.handleRate();
+    }
+  }
+
   handleRate() {
-    if (this.state.type === 'dogs' && (this.state.newRating > 15 || this.state.newRating < 11)) {
-      alert('Dogs must be rated above 10 and under 15');
-    } else if (this.state.type === 'cats' && this.state.newRating >= 0) {
-      alert('Cats can only receive negative ratings. Because they\'re cats...');
-    } else if (this.state.type === 'others' && (this.state.newRating > 10 || this.state.newRating < 0)) {
-      alert('Pets must be rated between 0 and 10');
+    if (!Number.isInteger(Number(this.state.newRating))) {
+      this.setState({alert: true, alertMsg: 'Rating must be an integer!'});
     } else {
-      fetch(`http://localhost:3000/api/pets/${this.state.id}`, {
-        method: 'PUT',
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({newRating: this.state.newRating})
-      })
-        .then(res => res.json())
-        .then((data) => {
-          if (data) {
-            this.updateData(data);
-            this.setState({showRating: true});
-          }
+      if (this.state.type === 'dogs' && (this.state.newRating > 15 || this.state.newRating < 11)) {
+        this.setState({alert: true, alertMsg: 'Dogs must be rated between 11 and 15'});
+      } else if (this.state.type === 'cats' && (this.state.newRating >= 0 || this.state.newRating < -10)) {
+        this.setState({alert: true, alertMsg: 'Cats can only receive negative ratings (down to -10). Because they\'re cats...'});
+      } else if (this.state.type === 'others' && (this.state.newRating > 10 || this.state.newRating < 0)) {
+        this.setState({alert: true, alertMsg: 'Pets must be rated between 0 and 10'});
+      } else {
+        fetch(`http://localhost:3000/api/pets/${this.state.id}`, {
+          method: 'PUT',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({newRating: this.state.newRating})
         })
+          .then(res => res.json())
+          .then((data) => {
+            if (data) {
+              this.updateData(data);
+              this.setState({showRating: true});
+            }
+          })
+      }
     }
   }
 
@@ -156,7 +173,8 @@ class App extends React.Component {
       <SimpleMenu renderDogs={this.handleDogs} renderCats={this.handleCats} renderOthers={this.handleOthers} postPet={this.handlePostPet} anchorEl={this.state} openMenu={this.handleOpenMenu} closeMenu={this.handleCloseMenu}/>
       <h1>Let's Rate Pets!</h1>
       {this.state.posting && <PostPet />}
-      {!this.state.posting && <RenderPet image={this.state.image} description={this.state.description} ratings={this.state.ratings} newRating={this.state.newRating} showRating={this.state.showRating} handleNext={this.handleNext} handleRating={this.handleRating} handleRate={this.handleRate}/>}
+      {!this.state.posting && <RenderPet image={this.state.image} description={this.state.description} ratings={this.state.ratings} newRating={this.state.newRating} showRating={this.state.showRating} handleNext={this.handleNext} handleRating={this.handleRating} handleEnter={this.handlerEnterKey} handleRate={this.handleRate}/>}
+      {this.state.alert && <div className='alert'>{this.state.alertMsg}</div>}
     </div>)
   }
 }

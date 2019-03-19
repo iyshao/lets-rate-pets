@@ -7,7 +7,8 @@ class PostPet extends React.Component {
     this.state = {
       category: 'dogs',
       image: '',
-      description: ''
+      description: '',
+      posted: false
     }
     
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -31,7 +32,7 @@ class PostPet extends React.Component {
       .then(res => res.json())
       .then(data => {
         if (data) {
-          alert('Thank you for submitting your pet!');
+          this.setState({posted: true});
         } else {
           alert('Oh no! That didn\'t work. Please try again later.');
         }
@@ -52,6 +53,7 @@ class PostPet extends React.Component {
         Description of your pet:
         <input name='description' value={this.state.description} onChange={this.handleInputChange} placeholder='Meet...'/>
         <button onClick={this.handleSubmit}>Submit</button>
+        {this.state.posted && <div className='alert'>Thank you for posting your pet!</div>}
       </div>
     )
   }

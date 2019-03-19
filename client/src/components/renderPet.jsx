@@ -8,11 +8,12 @@ class RenderPet extends React.Component {
   render() {
     var rate = (
       <div>
-        <input value={this.props.newRating} onChange={this.props.handleRating}/>
+        Rate this pet:
+        <input type='number' value={this.props.newRating} onKeyPress={this.props.handleEnter} onChange={this.props.handleRating}/>
         <button onClick={this.props.handleRate}>Submit rating</button>
       </div>
     );
-    var rating = (<div className='ratings'>Rating: {this.props.ratings}/10</div>);
+    var rating = (<div className='ratings'>Overall rating: {this.props.ratings}/10</div>);
 
     return (
       <div className='container'>

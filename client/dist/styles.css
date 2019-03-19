@@ -14,12 +14,12 @@ h1 {
 
 .menu {
   float: left;
-  margin-left: 3%;
+  margin-left: 10%;
 }
 
 .container {
   margin: auto;
-  margin-top: 5%;
+  margin-top: 2%;
   width: 50%;
 }
 
@@ -66,4 +66,10 @@ input, select {
   border: 1px solid #ccc;
   box-sizing: border-box;
   outline-color: #4CAF50;
+}
+
+.alert {
+  text-align: center;
+  font-size: 25px;
+  margin-top: 10px;
 }

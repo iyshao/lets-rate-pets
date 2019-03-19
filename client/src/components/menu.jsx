@@ -18,7 +18,7 @@ class SimpleMenu extends React.Component {
           aria-haspopup="true"
           onClick={this.props.openMenu}
         >
-         <i className="fas fa-bars"></i>
+         <i className="fas fa-bars fa-3x"></i>
         </Button>
         <Menu
           id="simple-menu"
