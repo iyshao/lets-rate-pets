@@ -5,6 +5,9 @@ Submissions must include a photo of the pet and a short, but charming, descripti
 
 Let's Rate Pets is built with React, Node/Express, and PostgreSQL.
 
+## App Demo ##
+Watch app demo here: https://youtu.be/uD9rFdG9hlg
+
 ## Getting Started ##
 ```
 npm install
