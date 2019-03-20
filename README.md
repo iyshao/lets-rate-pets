@@ -9,6 +9,13 @@ Let's Rate Pets is built with React, Node/Express, and PostgreSQL.
 Watch app demo here: https://youtu.be/uD9rFdG9hlg
 
 ## Getting Started ##
+
+### Requirements ##
+Node
+
+PostgreSQL
+
+### Commands ###
 ```
 npm install
 ```
