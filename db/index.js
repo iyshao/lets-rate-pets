@@ -13,11 +13,6 @@ var getNext = async (id, pet) => {
   return res;
 };
 
-// var getPrevious = async (id) => {
-//   var res = await client.query(`SELECT * FROM dogs WHERE id > ${id} LIMIT 1;`);
-//   return res;
-// };
-
 var postPet = async (category, image, description) => {
   var res = await client.query(`INSERT INTO pets (category, image, description, ratings) VALUES ('${category}', '${image}', '${description}', '{}')`);
   return res;

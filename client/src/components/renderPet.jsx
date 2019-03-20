@@ -19,8 +19,7 @@ class RenderPet extends React.Component {
       <div className='container'>
         <img className='image' src={this.props.image}></img>
         <div className='description'>{this.props.description}</div>
-        {this.props.ratings &&
-          (this.props.showRating ? rating : rate)}
+        {this.props.showRating ? rating : rate}
         <button onClick={this.props.handleNext}>Next</button>
       </div>
     )

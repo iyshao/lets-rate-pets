@@ -41,11 +41,9 @@ class App extends React.Component {
       var reducer = (accumulator, currentValue) => accumulator + currentValue;
       var ratingTotal = data.ratings.reduce(reducer);
       var rating = Math.round(ratingTotal / data.ratings.length);
-    } else {
-      rating = 'none';
     }
-
     this.setState({
+      posting: false,
       id: data.id,
       image: data.image,
       description: data.description,
@@ -85,47 +83,19 @@ class App extends React.Component {
   };
 
   handleDogs() {
-    this.setState({
-      posting: false,
-      type: 'dogs',
-      id: 1,
-      image: 'https://s3-us-west-1.amazonaws.com/mvp-pets/Pippy.JPG',
-      description: 'Awwww. Click \'Next\' to rate cute doggos!',
-      ratings: null,
-      alert: false
-    })
-    this.handleCloseMenu();
+    this.setState({anchorEl: null, type: 'dogs'}, () => this.componentDidMount());
   }
 
   handleCats() {
-    this.setState({
-      posting: false,
-      type: 'cats',
-      id: 1,
-      image: 'https://s3-us-west-1.amazonaws.com/mvp-pets/cat.jpg',
-      description: 'Ew. It\'s a cat. If you insist on looking at more cats, go ahead I guess...',
-      ratings: null,
-      alert: false
-    })
-    this.handleCloseMenu();
+    this.setState({anchorEl: null, type: 'cats'}, () => this.componentDidMount());
   }
 
   handleOthers() {
-    this.setState({
-      posting: false,
-      type: 'others',
-      id: 1,
-      image: 'https://s3-us-west-1.amazonaws.com/mvp-pets/hedgehog.jpg',
-      description: 'Click \'Next\' to rate all kinds of pets!',
-      ratings: null,
-      alert: false
-    })
-    this.handleCloseMenu();
+    this.setState({anchorEl: null, type: 'others'}, () => this.componentDidMount());
   }
 
   handlePostPet() {
-    this.setState({posting: true});
-    this.handleCloseMenu();
+    this.setState({anchorEl: null, posting: true});
   }
 
   handleRating(event) {
@@ -133,9 +103,7 @@ class App extends React.Component {
   }
 
   handlerEnterKey(event) {
-    if (event.key === 'Enter') {
-      this.handleRate();
-    }
+    if (event.key === 'Enter') this.handleRate();
   }
 
   handleRate() {
@@ -146,8 +114,8 @@ class App extends React.Component {
         this.setState({alert: true, alertMsg: 'Dogs must be rated between 11 and 15'});
       } else if (this.state.type === 'cats' && (this.state.newRating >= 0 || this.state.newRating < -10)) {
         this.setState({alert: true, alertMsg: 'Cats can only receive negative ratings (down to -10). Because they\'re cats...'});
-      } else if (this.state.type === 'others' && (this.state.newRating > 10 || this.state.newRating < 0)) {
-        this.setState({alert: true, alertMsg: 'Pets must be rated between 0 and 10'});
+      } else if (this.state.type === 'others' && (this.state.newRating > 10 || this.state.newRating <= 0)) {
+        this.setState({alert: true, alertMsg: 'Pets must be rated between 1 and 10'});
       } else {
         fetch(`http://localhost:3000/api/pets/${this.state.id}`, {
           method: 'PUT',
